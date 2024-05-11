@@ -1,5 +1,5 @@
-name := 'cosmic-app-template'
-export APPID := 'com.example.CosmicAppTemplate'
+name := 'text-wrench'
+export APPID := 'com.broken-d.TextWrench'
 
 rootdir := ''
 prefix := '/usr'

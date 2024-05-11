@@ -1,10 +1,10 @@
 [Desktop Entry]
-Name=COSMIC App Template
-Exec=cosmic-app-template %F
+Name=Text Wrench
+Exec=text-wrench %F
 Terminal=false
 Type=Application
 StartupNotify=true
-Icon=com.example.CosmicAppTemplate
+Icon=com.broken-d.TextWrench
 Categories=COSMIC;Utility;
-Keywords=Folder;Manager;
+Keywords=Text;Convert;Conversion;
 MimeType=inode/directory;

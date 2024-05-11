@@ -39,7 +39,7 @@ impl Application for YourApp {
 
     type Message = Message;
 
-    const APP_ID: &'static str = "com.example.CosmicAppTemplate";
+    const APP_ID: &'static str = "com.broken-d.TextWrench";
 
     fn core(&self) -> &Core {
         &self.core

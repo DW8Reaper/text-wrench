@@ -1,5 +1,5 @@
 [package]
-name = "cosmic-app-template"
+name = "text-wrench"
 version = "0.1.0"
 edition = "2021"
 
@@ -11,7 +11,8 @@ rust-embed = "8.3.0"
 [dependencies.libcosmic]
 git = "https://github.com/pop-os/libcosmic.git"
 default-features = false
-features = ["wayland", "wgpu"]
+features = ["winit", "wgpu", "tokio"]
+# features = ["wayland", "wgpu"]
 
 [dependencies.i18n-embed]
 version = "0.14"

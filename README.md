@@ -1,6 +1,6 @@
-# COSMIC Application Template
+# Text Wrench
 
-A template for COSMIC applications.
+A utility for performing conversions on text
 
 ## Getting Started
 
