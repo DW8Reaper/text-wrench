@@ -8,10 +8,15 @@ i18n-embed-fl = "0.8"
 once_cell = "1.19.0"
 rust-embed = "8.3.0"
 
+# Deps for text operations
+base64 = "0.22.1"
+urlencoding = "2.1.3"
+
+
 [dependencies.libcosmic]
-git = "https://github.com/pop-os/libcosmic.git"
+git = "https://github.com/pop-os/libcosmic"
 default-features = false
-features = ["winit", "wgpu", "tokio"]
+features = ["debug", "winit", "wgpu", "tokio", "xdg-portal"]
 # features = ["wayland", "wgpu"]
 
 [dependencies.i18n-embed]

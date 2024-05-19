@@ -2,6 +2,7 @@ use app::YourApp;
 /// The `app` module is used by convention to indicate the main component of our application.
 mod app;
 mod core;
+mod operations;
 
 /// The `cosmic::app::run()` function is the starting point of your application.
 /// It takes two arguments:
