@@ -6,11 +6,10 @@ use cosmic::{
     app::{self, Core},
     iced::{
         alignment::{Horizontal, Vertical},
-        Command, Length, Padding,
+        clipboard, Command, Length,
     },
-    iced_core::renderer::Style,
-    iced_style::text_editor::StyleSheet,
-    iced_widget::{text_editor, TextEditor},
+    iced_widget::text_editor,
+    prelude::*,
     widget, Application, Element,
 };
 
@@ -29,6 +28,12 @@ pub struct YourApp {
 
 pub struct TextContent {
     content: text_editor::Content,
+}
+
+impl TextContent {
+    fn clear(&mut self) {
+        self.content = text_editor::Content::with_text("");
+    }
 }
 
 impl Default for TextContent {
@@ -55,9 +60,14 @@ impl Clone for TextContent {
 #[derive(Debug, Clone)]
 pub enum Message {
     TickSlow,
-    UpdateContentLeft(text_editor::Action),
-    UpdateContentRight(text_editor::Action),
-    SetTextRight(String),
+    InputContentEditorAction(text_editor::Action),
+    SetInputContent(String),
+    ClearInputContent,
+    CopyInputContent,
+    PasteInputContent,
+    ConvertedContentEditorAction(text_editor::Action),
+    SetConvertedContent(String),
+    CopyConvertedContent,
 }
 
 /// Implement the `Application` trait for your application.
@@ -108,25 +118,43 @@ impl Application for YourApp {
                             self.content_to_convert.content.text(),
                             self.selected_operations.clone(),
                         ),
-                        |result| cosmic::app::Message::App(Message::SetTextRight(result)),
+                        |result| cosmic::app::Message::App(Message::SetConvertedContent(result)),
                     )
                 } else {
                     Command::none()
                 }
             }
-            Message::UpdateContentLeft(action) => {
+            Message::SetInputContent(text) => {
+                self.content_to_convert.content = text_editor::Content::with_text(text.as_str());
+                self.requires_conversion = true;
+                Command::none()
+            }
+            Message::InputContentEditorAction(action) => {
                 self.content_to_convert.content.perform(action);
                 self.requires_conversion = true;
                 Command::none()
             }
-            Message::UpdateContentRight(action) => {
+            Message::ClearInputContent => {
+                self.content_to_convert.clear();
+                self.converted_content.clear();
+                Command::none()
+            }
+            Message::CopyConvertedContent => {
+                clipboard::write(self.converted_content.content.text())
+            }
+            Message::CopyInputContent => clipboard::write(self.content_to_convert.content.text()),
+            Message::PasteInputContent => clipboard::read(|maybe_text| {
+                let text = maybe_text.unwrap_or_else(|| String::from(""));
+                cosmic::app::Message::App(Message::SetInputContent(text))
+            }),
+            Message::ConvertedContentEditorAction(action) => {
                 match action {
                     text_editor::Action::Edit(_) => {}
                     _ => self.converted_content.content.perform(action),
                 }
                 Command::none()
             }
-            Message::SetTextRight(text) => {
+            Message::SetConvertedContent(text) => {
                 self.converted_content.content = text_editor::Content::with_text(&text);
                 Command::none()
             }
@@ -159,24 +187,63 @@ impl Application for YourApp {
     ///
     /// To get a better sense of which widgets are available, check out the `widget` module.
     fn view(&self) -> Element<Self::Message> {
+        const DEFAULT_PADDING: f32 = 1.;
+
+        let text_input_copy =
+            widget::button::icon(cosmic::widget::icon::from_name("edit-copy-symbolic").size(16))
+                .tooltip("Copy all")
+                .on_press(Message::CopyInputContent);
+        let text_input_paste =
+            widget::button::icon(cosmic::widget::icon::from_name("edit-paste-symbolic"))
+                .tooltip("Paste overwrite")
+                .on_press(Message::PasteInputContent);
+        let text_input_clear =
+            widget::button::icon(cosmic::widget::icon::from_name("edit-clear-symbolic"))
+                .tooltip("Clear all")
+                .on_press(Message::ClearInputContent);
+
+        let text_input_toolbar = widget::row()
+            .push(text_input_copy)
+            .push(text_input_paste)
+            .push(text_input_clear)
+            .spacing(2);
+
         let text_input_heading = widget::text::heading("Input Text");
         let text_input_editor = text_editor(&self.content_to_convert.content)
             .font(cosmic::font::FONT_MONO_REGULAR)
-            .on_action(Message::UpdateContentLeft);
+            .on_action(Message::InputContentEditorAction);
         let text_input_view = widget::column()
             .push(text_input_heading)
+            .push(text_input_toolbar)
             .push(text_input_editor)
-            .padding(2_f32);
+            .padding([
+                DEFAULT_PADDING * 2.,
+                DEFAULT_PADDING,
+                DEFAULT_PADDING,
+                DEFAULT_PADDING,
+            ]);
 
+        let converted_copy =
+            widget::button::icon(cosmic::widget::icon::from_name("edit-copy-symbolic").size(16))
+                .tooltip("Copy all")
+                .on_press(Message::CopyConvertedContent);
+
+        let converted_toolbar = widget::row().push(converted_copy).spacing(2);
         let converted_heading = cosmic::widget::text::heading("Conversion Result");
         let converted_text_viewer =
             cosmic::iced_widget::text_editor(&self.converted_content.content)
                 .font(cosmic::font::FONT_MONO_REGULAR)
-                .on_action(Message::UpdateContentRight);
+                .on_action(Message::ConvertedContentEditorAction);
         let converted_view = widget::column()
             .push(converted_heading)
+            .push(converted_toolbar)
             .push(converted_text_viewer)
-            .padding(2_f32);
+            .padding([
+                DEFAULT_PADDING * 2.,
+                DEFAULT_PADDING,
+                DEFAULT_PADDING,
+                DEFAULT_PADDING,
+            ]);
 
         let text_io_container = widget::column().push(text_input_view).push(converted_view);
 
