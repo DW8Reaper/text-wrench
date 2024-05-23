@@ -21,7 +21,7 @@ pub struct TextOperations {
 impl TextOperations {
     fn new() -> Self {
         let none = OperationNone {};
-        let noop_id = String::from(none.get_name());
+        let noop_id = String::from(none.get_id());
 
         let mut operations: HashMap<String, Box<dyn TextOperation + Sync + Send>> = HashMap::new();
 

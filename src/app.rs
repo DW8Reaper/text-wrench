@@ -1,7 +1,15 @@
+use std::hash::DefaultHasher;
 use std::time::Duration;
 
-use crate::fl;
-use crate::operations::text_operations::TextOperations;
+use crate::operations::text_operations::{TextOperation, TextOperations};
+use crate::{fl, operations};
+use cosmic::cosmic_theme::palette::convert::IntoColorUnclamped;
+use cosmic::cosmic_theme::palette::num::Ln;
+use cosmic::cosmic_theme::{Container, Theme};
+use cosmic::iced::theme::palette::Pair;
+use cosmic::iced::{Background, Color};
+use cosmic::iced_core::widget::text;
+use cosmic::widget::{container, style};
 use cosmic::{
     app::{self, Core},
     iced::{
@@ -13,6 +21,8 @@ use cosmic::{
     widget, Application, Element,
 };
 
+const DEFAULT_PADDING: f32 = 1.;
+
 /// This is the struct that represents your application.
 /// It is used to define the data that will be used by your application.
 #[derive(Clone, Default)]
@@ -23,7 +33,10 @@ pub struct YourApp {
     content_to_convert: TextContent,
     converted_content: TextContent,
     requires_conversion: bool,
-    selected_operations: Vec<String>,
+    selected_operations: Vec<usize>,
+    operation_names: Vec<&'static str>,
+    operation_ids: Vec<&'static str>,
+    operation_none_index: usize,
 }
 
 pub struct TextContent {
@@ -68,6 +81,8 @@ pub enum Message {
     ConvertedContentEditorAction(text_editor::Action),
     SetConvertedContent(String),
     CopyConvertedContent,
+    DeleteOperation(usize),
+    SelectOperation(usize, usize),
 }
 
 /// Implement the `Application` trait for your application.
@@ -101,7 +116,7 @@ impl Application for YourApp {
     }
 
     fn subscription(&self) -> cosmic::iced::Subscription<Self::Message> {
-        cosmic::iced::time::every(Duration::from_millis(200)).map(|_| Message::TickSlow)
+        cosmic::iced::time::every(Duration::from_millis(100)).map(|_| Message::TickSlow)
     }
 
     fn update(
@@ -113,11 +128,13 @@ impl Application for YourApp {
                 //Command::none()
                 if self.requires_conversion == true {
                     self.requires_conversion = false;
+                    let selected_ids = self
+                        .selected_operations
+                        .iter()
+                        .map(|index| String::from(self.operation_ids[*index]))
+                        .collect();
                     Command::perform(
-                        perform_conversions(
-                            self.content_to_convert.content.text(),
-                            self.selected_operations.clone(),
-                        ),
+                        perform_conversions(self.content_to_convert.content.text(), selected_ids),
                         |result| cosmic::app::Message::App(Message::SetConvertedContent(result)),
                     )
                 } else {
@@ -158,6 +175,38 @@ impl Application for YourApp {
                 self.converted_content.content = text_editor::Content::with_text(&text);
                 Command::none()
             }
+            Message::DeleteOperation(operation_index) => {
+                if operation_index < self.selected_operations.len() {
+                    if operation_index == self.selected_operations.len() - 1 {
+                        self.selected_operations[operation_index] = self.operation_none_index;
+                    } else {
+                        self.selected_operations.remove(operation_index);
+                    }
+                    self.requires_conversion = true;
+                }
+                Command::none()
+            }
+            Message::SelectOperation(select_index, operation_index) => {
+                self.selected_operations[select_index] = operation_index;
+                self.requires_conversion = true;
+
+                if (*self.selected_operations.last().unwrap() != self.operation_none_index) {
+                    self.selected_operations.push(self.operation_none_index)
+                } else {
+                    while (self.selected_operations.len() > 2) {
+                        let last = self.selected_operations.len() - 1;
+                        let second_last = self.selected_operations.len() - 2;
+                        if (self.selected_operations[last] == self.operation_none_index
+                            && self.selected_operations[second_last] == self.operation_none_index)
+                        {
+                            self.selected_operations.pop();
+                        } else {
+                            break;
+                        }
+                    }
+                }
+                Command::none()
+            }
         }
     }
 
@@ -169,12 +218,34 @@ impl Application for YourApp {
     /// - `flags` is used to pass in any data that your application needs to use before it starts.
     /// - `Command` type is used to send messages to your application. `Command::none()` can be used to send no messages to your application.
     fn init(core: Core, _flags: Self::Flags) -> (Self, Command<app::Message<Self::Message>>) {
+        let text_operations = TextOperations::get_instance();
+        let noop_id = text_operations.get_noop().get_id();
+        let operation_ids = text_operations.get_operations();
+        let operation_names = operation_ids
+            .iter()
+            .map(|&id| {
+                let operation = text_operations.get_operation(id).unwrap();
+                operation.get_name()
+            })
+            .collect();
+
+        let mut operation_none_index: usize = 0;
+        for (index, id) in operation_ids.iter().enumerate() {
+            if (**id == *noop_id) {
+                operation_none_index = index;
+                break;
+            }
+        }
+
         let example = YourApp {
             core,
             content_to_convert: TextContent::default(),
             converted_content: TextContent::default(),
             requires_conversion: false,
-            selected_operations: vec![String::from("UPPER_CASE")],
+            selected_operations: vec![operation_none_index],
+            operation_ids,
+            operation_names,
+            operation_none_index,
         };
 
         (example, Command::none())
@@ -187,10 +258,76 @@ impl Application for YourApp {
     ///
     /// To get a better sense of which widgets are available, check out the `widget` module.
     fn view(&self) -> Element<Self::Message> {
-        const DEFAULT_PADDING: f32 = 1.;
+        let operations_container = self.create_conversion_options();
+        let text_input_view = self.create_text_input_view();
+        let converted_view = self.create_converted_data_view();
 
+        let text_io_container = widget::column()
+            .padding([10., 0., 0., 0.])
+            .push(text_input_view)
+            .push(converted_view)
+            .width(Length::FillPortion(4));
+
+        let app_layout = widget::row()
+            .spacing(10.)
+            .push(operations_container)
+            .push(text_io_container);
+
+        widget::container(app_layout)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .align_x(Horizontal::Center)
+            .align_y(Vertical::Center)
+            .into()
+    }
+}
+
+impl YourApp {
+    fn create_conversion_options(&self) -> Element<Message> {
+        let mut operation_selection_list =
+            widget::column().push(widget::text::heading("Conversion Operations"));
+
+        for index in 0..self.selected_operations.len() {
+            let operation_dropdown = widget::dropdown(
+                &self.operation_names,
+                Some(self.selected_operations[index]),
+                move |operation_index| Message::SelectOperation(index, operation_index.clone()),
+            );
+
+            let mut operation_line = widget::row().spacing(2.).push(operation_dropdown);
+
+            let add_delete = if (index == self.selected_operations.len() - 1
+                || self.selected_operations.len() == 1)
+            {
+                // only add delete when there is a single or or when this is the last row and it is already none
+                self.selected_operations[index] != self.operation_none_index
+            } else {
+                true
+            };
+
+            if (add_delete) {
+                let operation_delete =
+                    widget::button::icon(widget::icon::from_name("edit-delete-symbolic"))
+                        .on_press(Message::DeleteOperation(index));
+
+                operation_line = operation_line.push(operation_delete);
+            }
+
+            operation_selection_list = operation_selection_list.push(operation_line);
+        }
+
+        widget::container(operation_selection_list)
+            .padding(10.)
+            .height(Length::Fill)
+            .width(Length::Fixed(300.))
+            // .style(format)
+            .style(cosmic::theme::Container::Card)
+            .into()
+    }
+
+    fn create_text_input_view(&self) -> Element<Message> {
         let text_input_copy =
-            widget::button::icon(cosmic::widget::icon::from_name("edit-copy-symbolic").size(16))
+            widget::button::icon(cosmic::widget::icon::from_name("edit-copy-symbolic"))
                 .tooltip("Copy all")
                 .on_press(Message::CopyInputContent);
         let text_input_paste =
@@ -212,7 +349,8 @@ impl Application for YourApp {
         let text_input_editor = text_editor(&self.content_to_convert.content)
             .font(cosmic::font::FONT_MONO_REGULAR)
             .on_action(Message::InputContentEditorAction);
-        let text_input_view = widget::column()
+
+        widget::column()
             .push(text_input_heading)
             .push(text_input_toolbar)
             .push(text_input_editor)
@@ -221,8 +359,11 @@ impl Application for YourApp {
                 DEFAULT_PADDING,
                 DEFAULT_PADDING,
                 DEFAULT_PADDING,
-            ]);
+            ])
+            .into()
+    }
 
+    fn create_converted_data_view(&self) -> Element<Message> {
         let converted_copy =
             widget::button::icon(cosmic::widget::icon::from_name("edit-copy-symbolic").size(16))
                 .tooltip("Copy all")
@@ -234,7 +375,8 @@ impl Application for YourApp {
             cosmic::iced_widget::text_editor(&self.converted_content.content)
                 .font(cosmic::font::FONT_MONO_REGULAR)
                 .on_action(Message::ConvertedContentEditorAction);
-        let converted_view = widget::column()
+
+        widget::column()
             .push(converted_heading)
             .push(converted_toolbar)
             .push(converted_text_viewer)
@@ -243,15 +385,7 @@ impl Application for YourApp {
                 DEFAULT_PADDING,
                 DEFAULT_PADDING,
                 DEFAULT_PADDING,
-            ]);
-
-        let text_io_container = widget::column().push(text_input_view).push(converted_view);
-
-        widget::container(text_io_container)
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .align_x(Horizontal::Center)
-            .align_y(Vertical::Center)
+            ])
             .into()
     }
 }
