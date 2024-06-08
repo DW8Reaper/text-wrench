@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.mangledbits.TextWrench</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-only</project_license>
+  <project_group>COSMIC</project_group>
+  <update_contact>dev@mangledbits.com</update_contact>
+  <content_rating type="oars-1.1" />
+  <url type="homepage">https://github.com/DW8Reaper/text-wrench</url>
+  <url type="bugtracker">https://github.com/DW8Reaper/text-wrench/issues</url>
+  <name>Text Wrench</name>
+  <summary>Text Conversion Utility</summary>
+
+  <description>
+    <p>Text Wrench is a utility for converting text to different formats. It can be helpful for
+      developers to convert text to Base64 for example.</p>
+  </description>
+
+  <launchable type="desktop-id">com.mangledbits.TextWrench.desktop</launchable>
+  <icon type="stock" height="256" width="256">com.mangledbits.TextWrench.svg</icon>
+
+  <screenshots>
+    <screenshot type="default" environment="gnome:dark">
+      <caption>TextWrench main window</caption>
+      <image type="source" width="800" height="600">
+        https://github.com/DW8Reaper/text-wrench/tree/main/res/screenshots/main.png</image>
+    </screenshot>
+  </screenshots>
+
+  <categories>
+    <category>Development</category>
+    <category>Utility</category>
+  </categories>
+
+  <developer id="com.mangledbits">
+    <name>De Wildt van Reenen</name>
+  </developer>
+
+  <releases>
+    <release version="0.1.0" date="2024-05-31" urgency="low">
+      <description>
+        <p>Alpha test release.</p>
+      </description>
+    </release>
+  </releases>
+
+  <provides>
+    <binary>text-wrench</binary>
+  </provides>
+</component>

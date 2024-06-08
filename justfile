@@ -1,29 +1,5 @@
 name := 'text-wrench'
-export APPID := 'com.broken-d.TextWrench'
-
-rootdir := ''
-prefix := '/usr'
-flatpak-prefix := '/app'
-
-base-dir := absolute_path(clean(rootdir / prefix))
-flatpak-base-dir := absolute_path(clean(rootdir / flatpak-prefix))
-
-export INSTALL_DIR := base-dir / 'share'
-
-bin-src := 'target' / 'release' / name
-bin-dst := base-dir / 'bin' / name
-flatpak-bin-dst := flatpak-base-dir / 'bin' / name
-
-desktop := APPID + '.desktop'
-desktop-src := 'res' / desktop
-desktop-dst := clean(rootdir / prefix) / 'share' / 'applications' / desktop
-
-metainfo := APPID + '.metainfo.xml'
-metainfo-src := 'res' / metainfo
-metainfo-dst := clean(rootdir / prefix) / 'share' / 'metainfo' / metainfo
-
-icons-src := 'res' / 'icons' / 'hicolor'
-icons-dst := clean(rootdir / prefix) / 'share' / 'icons' / 'hicolor'
+export APPID := 'com.mangledbits.TextWrench'
 
 # Default recipe which runs `just build-release`
 default: build-release
@@ -31,20 +7,16 @@ default: build-release
 # Runs `cargo clean`
 clean:
     cargo clean
-
-# Removes vendored dependencies
-clean-vendor:
-    rm -rf .cargo vendor vendor.tar
-
-# `cargo clean` and removes vendored dependencies
-clean-dist: clean clean-vendor
+    rm -rf dist
+    rm -rf vendor
 
 # Compiles with debug profile
 build-debug *args:
     cargo build {{args}}
 
 # Compiles with release profile
-build-release *args: (build-debug '--release' args)
+build-release *args:
+    cargo build --release {{args}}
 
 # Compiles release profile with vendored dependencies
 build-vendored *args: vendor-extract (build-release '--frozen --offline' args)
@@ -64,27 +36,21 @@ dev *args:
 run *args:
     env RUST_LOG=cosmic_tasks=info RUST_BACKTRACE=full cargo run --release {{args}}
 
-# Installs files
-install:
-    install -Dm0755 {{bin-src}} {{bin-dst}}
-    install -Dm0644 {{desktop-src}} {{desktop-dst}}
-    install -Dm0644 {{metainfo-src}} {{metainfo-dst}}
-    for size in `ls {{icons-src}}`; do \
-        install -Dm0644 "{{icons-src}}/$size/apps/{{APPID}}.svg" "{{icons-dst}}/$size/apps/{{APPID}}.svg"; \
-    done
+# Verify flatpak metainfo file
+flatpak-verify:
+    flatpak run --command=flatpak-builder-lint org.flatpak.Builder appstream res/{{APPID}}.metainfo.xml
 
-# Installs files
-flatpak:
-    install -Dm0755 {{bin-src}} {{flatpak-bin-dst}}
-    install -Dm0644 {{desktop-src}} {{desktop-dst}}
-    install -Dm0644 {{metainfo-src}} {{metainfo-dst}}
-    for size in `ls {{icons-src}}`; do \
-        install -Dm0644 "{{icons-src}}/$size/apps/{{APPID}}.svg" "{{icons-dst}}/$size/apps/{{APPID}}.svg"; \
-    done
+# Build a flatpak package for the app. The build assumes that the flatpak-builder has been installed as a flatpak app
+flatpak-build:
+    rm -rf dist
+    flatpak run org.flatpak.Builder dist res/{{APPID}}.yml
+
+flatpak-install:
+    flatpak run org.flatpak.Builder --user --install --force-clean dist res/{{APPID}}.yml
 
 # Uninstalls installed files
-uninstall:
-    rm {{bin-dst}}
+flatpak-uninstall:
+    flatpak remove {{APPID}}
 
 # Vendor dependencies locally
 vendor:
@@ -104,6 +70,8 @@ vendor:
         echo "VERGEN_GIT_SHA = \"${SOURCE_GIT_HASH}\"" >> .cargo/config.toml
     fi
     tar pcf vendor.tar .cargo vendor
+
+vendor-clean:
     rm -rf .cargo vendor
 
 # Extracts vendored dependencies

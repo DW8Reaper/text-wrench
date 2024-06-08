@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="80.888908mm"
+   height="80.888893mm"
+   viewBox="0 0 80.888908 80.888893"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25)"
+   sodipodi:docname="wrench.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="735.03748"
+     inkscape:cy="756.95779"
+     inkscape:window-width="2518"
+     inkscape:window-height="1339"
+     inkscape:window-x="2598"
+     inkscape:window-y="60"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-104.30631,-192.50378)">
+    <rect
+       style="fill:none;stroke-width:0.497007;stroke-linecap:round"
+       id="rect2"
+       width="80.888901"
+       height="80.888901"
+       x="104.30631"
+       y="192.50378"
+       ry="3.6967852" />
+    <g
+       id="g2"
+       transform="translate(10.617054,9.7496834)">
+      <rect
+         style="fill:#e9d8a6;fill-opacity:1;stroke:none;stroke-width:0.433361;stroke-linecap:round;stroke-opacity:1"
+         id="rect26"
+         width="75.285896"
+         height="75.285896"
+         x="96.490761"
+         y="185.5556"
+         ry="8.2938595"
+         inkscape:label="border"
+         inkscape:export-filename="../projects/tw_new/text-wrench/res/com.mangledbits.TextWrench.svg"
+         inkscape:export-xdpi="10.79618"
+         inkscape:export-ydpi="10.79618" />
+      <text
+         xml:space="preserve"
+         style="font-weight:bold;font-size:16.9333px;line-height:0;font-family:'Nimbus Sans';-inkscape-font-specification:'Nimbus Sans Bold';fill:#9b2226;fill-opacity:1;stroke-width:0.499999;stroke-linecap:round"
+         x="134.09033"
+         y="203.05441"
+         id="text44"><tspan
+           sodipodi:role="line"
+           style="font-size:7.05556px;line-height:0.94;text-align:center;text-anchor:middle;fill:#4d4d4d;fill-opacity:1;stroke-width:0.5"
+           x="134.09033"
+           y="203.05441"
+           id="tspan56"><tspan
+             id="tspan57"
+             style="font-size:16.9333px;line-height:0.94;text-align:center;text-anchor:middle;fill:#9b2226;fill-opacity:1;stroke-width:0.5">Text</tspan><tspan
+             style="font-size:6.35px;line-height:0.94;text-align:center;text-anchor:middle"
+             id="tspan70"> 0x54 0x65 </tspan></tspan><tspan
+           style="font-size:6.35px;line-height:0.94;text-align:center;text-anchor:middle;fill:#666666;fill-opacity:1;stroke-width:0.5"
+           sodipodi:role="line"
+           id="tspan207"
+           x="134.09033"
+           y="211.57399"><tspan
+   dx="0"
+   id="tspan212"
+   style="font-size:6.35px;line-height:0.94;text-align:center;text-anchor:middle;fill:#4d4d4d;fill-opacity:1;stroke-width:0.5">0x78 0x74  </tspan>VGV4dA</tspan><tspan
+           style="font-size:16.9333px;line-height:1.15;text-align:center;text-anchor:middle;fill:#9b2226;fill-opacity:1;stroke-width:0.5"
+           sodipodi:role="line"
+           id="tspan208"
+           x="134.09033"
+           y="226.7187"><tspan
+   id="tspan214"
+   style="font-size:6.35px;line-height:0.94;text-align:center;text-anchor:middle;fill:#666666;fill-opacity:1;stroke-width:0.5">==</tspan>wrench</tspan><tspan
+           style="font-size:7.05556px;line-height:1.15;text-align:center;text-anchor:middle;fill:#4d4d4d;fill-opacity:1;stroke-width:0.5"
+           sodipodi:role="line"
+           id="tspan209"
+           x="134.09033"
+           y="238.25031">0x57 0x72 0x65     </tspan><tspan
+           style="font-size:7.05556px;line-height:1.15;text-align:center;text-anchor:middle;fill:#4d4d4d;fill-opacity:1;stroke-width:0.5"
+           sodipodi:role="line"
+           id="tspan210"
+           x="134.09033"
+           y="246.3642">    0x6e 0x63 0x68 </tspan><tspan
+           style="font-size:7.05556px;line-height:1.15;text-align:center;text-anchor:middle;fill:#666666;fill-opacity:1;stroke-width:0.5"
+           sodipodi:role="line"
+           id="tspan211"
+           x="134.09033"
+           y="254.47809">                V3JlbmNo</tspan></text>
+    </g>
+  </g>
+</svg>

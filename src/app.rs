@@ -100,7 +100,7 @@ impl Application for YourApp {
 
     type Message = Message;
 
-    const APP_ID: &'static str = "com.broken-d.TextWrench";
+    const APP_ID: &'static str = "com.mangledbits.TextWrench";
 
     fn core(&self) -> &Core {
         &self.core
